@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use bevy::input::mouse::MouseButton;
-use bevy_mod_raycast::prelude::*;
-use crate::ziel::Ziel;
+use crate::ziel::{Ziel, spawne_ziel};
 
 pub struct SchiessenPlugin;
 
@@ -26,11 +25,8 @@ struct Bullet {
 }
 
 fn schiessen(
-    mut commands: Commands,
     maus: Res<ButtonInput<MouseButton>>,
-    mut raycast: Raycast,
     kamera: Query<&GlobalTransform, With<Camera3d>>,
-    ziele: Query<Entity, With<Ziel>>,
     mut schuss_events: EventWriter<SchussAbgefeuert>,
 ) {
     if !maus.just_pressed(MouseButton::Left) {
@@ -40,21 +36,11 @@ fn schiessen(
     let Ok(cam_transform) = kamera.get_single() else { return; };
     let origin = cam_transform.translation();
     let direction = cam_transform.forward();
-    let ray = Ray3d::new(origin, *direction);
-
-    let filter = |entity| ziele.contains(entity);
-    let settings = RaycastSettings::default().with_filter(&filter);
-    let hits = raycast.cast_ray(ray, &settings);
 
     schuss_events.send(SchussAbgefeuert {
         origin,
         direction: *direction,
     });
-
-    for (entity, hit) in hits {
-        println!("Getroffen! Entity: {:?}, Distanz: {}", entity, hit.distance());
-        commands.entity(*entity).despawn();
-    }
 }
 
 fn spawne_tracer(
@@ -73,7 +59,7 @@ fn spawne_tracer(
             },
             Bullet {
                 direction: event.direction,
-                speed: 50.0,
+                speed: 100.0,
                 traveled: 0.0,
             },
         ));
@@ -82,16 +68,39 @@ fn spawne_tracer(
 
 fn bewege_bullets(
     mut commands: Commands,
-    mut bullets: Query<(Entity, &mut Transform, &mut Bullet)>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut bullets: Query<(Entity, &mut Transform, &mut Bullet), Without<Ziel>>,
+    ziele: Query<(Entity, &Transform), (With<Ziel>, Without<Bullet>)>,
     zeit: Res<Time>,
 ) {
-    for (entity, mut transform, mut bullet) in &mut bullets {
+    for (bullet_entity, mut bullet_transform, mut bullet) in &mut bullets {
         let schritt = bullet.direction * bullet.speed * zeit.delta_seconds();
-        transform.translation += schritt;
+        bullet_transform.translation += schritt;
         bullet.traveled += schritt.length();
 
-        if bullet.traveled > 100.0 {
-            commands.entity(entity).despawn();
+        let mut getroffen = false;
+        for (ziel_entity, ziel_transform) in &ziele {
+            let distanz = bullet_transform
+                .translation
+                .distance(ziel_transform.translation);
+
+            if distanz < 1.0 {
+                // Kugel und getroffenes Ziel entfernen
+                commands.entity(bullet_entity).despawn();
+                commands.entity(ziel_entity).despawn();
+
+                // Neues Ziel an zufälliger Stelle spawnen
+                spawne_ziel(&mut commands, &mut meshes, &mut materials);
+
+                getroffen = true;
+                println!("Ziel getroffen! Neues Ziel gespawnt.");
+                break;
+            }
+        }
+
+        if !getroffen && bullet.traveled > 100.0 {
+            commands.entity(bullet_entity).despawn();
         }
     }
 }

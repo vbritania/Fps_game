@@ -34,7 +34,7 @@ pub fn setup_welt(
     });
 
     commands.spawn(PbrBundle {
-        mesh: meshes.add(Cuboid::new(10.0, 10.0, 0.01)),
+        mesh: meshes.add(Cuboid::new(20.0, 20.0, 0.01)),
         material: materials.add(Color::srgb(0.3, 0.3, 0.3)),
         transform: Transform::from_xyz(0.0, 0.0, -10.0),
         ..default()
