@@ -1,10 +1,18 @@
 use bevy::prelude::*;
-use bevy::core_pipeline::core_3d::Camera3d;
 use bevy::input::keyboard::KeyCode;
-use bevy::input::mouse::MouseMotion;
+use bevy::input::mouse::{MouseButton, MouseMotion};
+use bevy::window::{CursorGrabMode, PrimaryWindow};
 use bevy_mod_raycast::prelude::*;
 use crate::MyRaycastSet;
 
+pub struct SpielerPlugin;
+
+impl Plugin for SpielerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, setup_spieler);
+        app.add_systems(Update, (bewege_kamera, maus_sperren));
+    }
+}
 
 pub fn setup_spieler(mut commands: Commands) {
     commands.spawn((
@@ -17,7 +25,21 @@ pub fn setup_spieler(mut commands: Commands) {
     ));
 }
 
+pub fn maus_sperren(
+    mut fenster: Query<&mut Window, With<PrimaryWindow>>,
+    maus: Res<ButtonInput<MouseButton>>,
+) {
+    let Ok(mut window) = fenster.get_single_mut() else { return; };
 
+    if maus.just_pressed(MouseButton::Left) {
+        window.cursor.grab_mode = CursorGrabMode::Locked;
+        window.cursor.visible = false;
+    }
+    if maus.just_pressed(MouseButton::Right) {
+        window.cursor.grab_mode = CursorGrabMode::None;
+        window.cursor.visible = true;
+    }
+}
 
 pub fn bewege_kamera(
     mut query: Query<&mut Transform, With<Camera3d>>,
@@ -27,7 +49,8 @@ pub fn bewege_kamera(
 ) {
     let Ok(mut transform) = query.get_single_mut() else { return; };
     let geschwindigkeit = 5.0;
-    let sens = 0.008;
+    let sens = 0.002;
+
     let mut yaw = 0.0;
     let mut pitch = 0.0;
 
@@ -36,8 +59,7 @@ pub fn bewege_kamera(
         pitch -= b.delta.y * sens;
     }
 
-    if yaw != 0.0 || pitch != 0. {
-        transform.rotate_around(Vec3::ZERO, Quat::from_rotation_y(yaw));
+    if yaw != 0.0 || pitch != 0.0 {
         transform.rotate(Quat::from_rotation_y(yaw));
 
         let aktuelle_pitch = transform.rotation.to_euler(EulerRot::YXZ).1;
@@ -45,9 +67,6 @@ pub fn bewege_kamera(
         let delta_pitch = neuer_pitch - aktuelle_pitch;
         transform.rotate_local_x(delta_pitch);
     }
-
-        
-
 
     let mut richtung = Vec3::ZERO;
     if keyboard.pressed(KeyCode::KeyW) {

@@ -1,4 +1,12 @@
-use bevy::{log::tracing_subscriber::util::SubscriberInitExt, prelude::*};
+use bevy::prelude::*;
+
+pub struct WeltPlugin;
+
+impl Plugin for WeltPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, setup_welt);
+    }
+}
 
 pub fn setup_welt(
     mut commands: Commands,
@@ -25,11 +33,10 @@ pub fn setup_welt(
         ..default()
     });
 
-    //wand
-    commands.spawn(PbrBundle{
-        mesh: meshes.add(Cuboid::new(10.0, 10., 0.01)),
+    commands.spawn(PbrBundle {
+        mesh: meshes.add(Cuboid::new(10.0, 10.0, 0.01)),
         material: materials.add(Color::srgb(0.3, 0.3, 0.3)),
-        transform: Transform::from_xyz(0., 0.0, -10.0),
+        transform: Transform::from_xyz(0.0, 0.0, -10.0),
         ..default()
     });
 }
