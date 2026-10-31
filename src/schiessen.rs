@@ -75,8 +75,7 @@ fn spawne_tracer(
 
 fn bewege_bullets(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    asset_server: Res<AssetServer>,
     mut bullets: Query<(Entity, &mut Transform, &mut Bullet), Without<Ziel>>,
     ziele: Query<(Entity, &Transform), (With<Ziel>, Without<Bullet>)>,
     zeit: Res<Time>,
@@ -97,7 +96,7 @@ fn bewege_bullets(
                 commands.entity(ziel_entity).despawn();
 
                 // Neues Ziel an zufälliger Stelle spawnen
-                spawne_ziel(&mut commands, &mut meshes, &mut materials);
+                spawne_ziel(&mut commands, &asset_server);
 
                 getroffen = true;
                 println!("Ziel getroffen! Neues Ziel gespawnt.");

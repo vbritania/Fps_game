@@ -14,26 +14,23 @@ impl Plugin for ZielPlugin {
 
 fn spawne_ziel_start(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+     asset_server: Res<AssetServer>,
 ) {
-    spawne_ziel(&mut commands, &mut meshes, &mut materials);
+    spawne_ziel(&mut commands, &asset_server);
 }
 pub fn spawne_ziel (
     commands: &mut Commands,
-    meshes: &mut ResMut<Assets<Mesh>>,
-    materials: &mut ResMut<Assets<StandardMaterial>>,
+    asset_server: &AssetServer,
 ){
     let mut rng = rand::thread_rng();
 
     let x = rng.gen_range(-4.0..4.0);
-    let y = rng.gen_range(0.5..3.0);
-    let z = rng.gen_range(-8.0..-3.0);
+    let y = rng.gen_range(0.5..8.0);
+    let z = rng.gen_range(-8.5..-2.0);
 
     commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-            material: materials.add(Color::srgb(1.0, 0.0, 0.0)),
+        SceneBundle {
+            scene: asset_server.load("ziel.glb#Scene0"),
             transform: Transform::from_xyz(x, y, z),
             ..default()
         },
