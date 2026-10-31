@@ -1,4 +1,8 @@
 use bevy::prelude::*;
+use bevy::{ecs::bundle, prelude::*};
+
+
+
 use bevy::input::mouse::MouseButton;
 use crate::ziel::{Ziel, spawne_ziel};
 
@@ -45,26 +49,29 @@ fn schiessen(
 
 fn spawne_tracer(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut schuss_events: EventReader<SchussAbgefeuert>,
+    asset_server: Res<AssetServer>,
+    mut schuss_events: EventReader<SchussAbgefeuert>
 ) {
-    for event in schuss_events.read() {
+        for event in schuss_events.read() {
+            let rotation = Transform::from_translation(event.origin)
+            .looking_to(event.direction, Vec3::Y).rotation;
+        
         commands.spawn((
-            PbrBundle {
-                mesh: meshes.add(Cuboid::new(0.05, 0.05, 0.05)),
-                material: materials.add(Color::srgb(1.0, 0.8, 0.0)),
-                transform: Transform::from_translation(event.origin),
+            SceneBundle {
+                scene: asset_server.load("bullet.glb#Scene0"),
+                transform: Transform::from_translation(event.origin)
+                    .with_rotation(rotation),
                 ..default()
             },
             Bullet {
                 direction: event.direction,
-                speed: 100.0,
+                speed: 200.0,
                 traveled: 0.0,
             },
         ));
     }
-}
+    }
+
 
 fn bewege_bullets(
     mut commands: Commands,
@@ -81,8 +88,7 @@ fn bewege_bullets(
 
         let mut getroffen = false;
         for (ziel_entity, ziel_transform) in &ziele {
-            let distanz = bullet_transform
-                .translation
+            let distanz = bullet_transform.translation
                 .distance(ziel_transform.translation);
 
             if distanz < 1.0 {
