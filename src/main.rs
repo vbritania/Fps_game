@@ -10,6 +10,7 @@ use ziel::ZielPlugin;
 
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_rapier3d::prelude::*;
 
 #[derive(Reflect)]
 pub struct MyRaycastSet;
@@ -23,9 +24,9 @@ fn main() {
             SpielerPlugin,
             ZielPlugin,
             SchiessenPlugin,
-
+            
             ))
-    
+            .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
             
         .run();
 }

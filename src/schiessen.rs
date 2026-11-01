@@ -3,6 +3,7 @@ use bevy::{ecs::bundle, prelude::*};
 
 
 
+
 use bevy::input::mouse::MouseButton;
 use crate::ziel::{Ziel, spawne_ziel};
 
@@ -38,7 +39,11 @@ fn schiessen(
     }
 
     let Ok(cam_transform) = kamera.get_single() else { return; };
-    let origin = cam_transform.translation();
+    let muendung_lokal = Vec3::new(1.2, -1., -8.5); // x =1 y = -1.2 z = -4.5
+    
+    let rotation = cam_transform.to_scale_rotation_translation().1;
+    let origin = cam_transform.translation() + rotation * muendung_lokal;
+
     let direction = cam_transform.forward();
 
     schuss_events.send(SchussAbgefeuert {
