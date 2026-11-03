@@ -337,7 +337,7 @@ pub fn setup_welt(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((                                              
         SceneBundle {
             scene: asset_server.load("map.glb#Scene0"),
-            transform: Transform::from_xyz(0.0, 0.0, 0.0),//.with_scale(Vec3::splat(4.7)), //with_scale(Vec3::splat(4.7) bei dust2
+            transform: Transform::from_xyz(0.0, 0.0, 0.0), //with_scale(Vec3::splat(4.7) bei dust2
             ..default()
         },
         AsyncSceneCollider::default(), //Collider fur alle maps automatisch

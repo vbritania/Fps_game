@@ -2,33 +2,37 @@ mod welt;
 mod spieler;
 mod ziel;
 mod schiessen;
-
-use welt::WeltPlugin;
-use spieler::SpielerPlugin;
-use schiessen::SchiessenPlugin;
-use ziel::ZielPlugin;
+mod movement;
+mod gamepad; 
+mod kampf;   
 
 use bevy::prelude::*;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bevy_rapier3d::prelude::*;
+use bevy_rapier3d::prelude::*; 
 
 #[derive(Reflect)]
 pub struct MyRaycastSet;
 
 fn main() {
     App::new()
-        .add_plugins((
-            DefaultPlugins,
-            WorldInspectorPlugin::new(),
-            WeltPlugin,
-            SpielerPlugin,
-            ZielPlugin,
-            SchiessenPlugin,
-            
-            ))
-            .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
-            
+        .add_plugins(DefaultPlugins)
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default()) 
+        .add_plugins(welt::WeltPlugin)
+        .add_plugins(gamepad::EingabePlugin) 
+        .add_plugins(spieler::SpielerPlugin)
+        .add_plugins(schiessen::SchiessenPlugin)
+        .add_plugins(kampf::KampfPlugin) 
         .run();
 }
 
 
+//reload 
+//hand auf waffe 
+//inspect gun
+//menu
+//aimlab auch noch
+
+
+
+//waffe soll auch auf der kamera sichtbar sein
+//kugel kleiner machen
+//map unbedingt andern und credits vepasen
